@@ -25,7 +25,9 @@ public class ReactiveWebController {
 
     @GetMapping(value = "/products/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<Product> getProductsStream() {
-        return webClient.get().uri("/demo01/products").retrieve().bodyToFlux(Product.class).doOnNext(
+        return webClient.get().uri("/demo01/products/notorious").retrieve().bodyToFlux(Product.class)
+                .onErrorComplete()
+                .doOnNext(
                 p -> log.info("Received product: {}", p));
     }
 }
