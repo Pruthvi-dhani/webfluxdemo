@@ -1,5 +1,6 @@
 package com.webflux.demo.sec02;
 
+import com.webflux.demo.sec02.entity.Customer;
 import com.webflux.demo.sec02.repository.CustomerRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -51,6 +52,31 @@ public class CustomerRepositoryTest extends AbstractTest {
                 .verify();
     }
 
+    @Test
+    public void insertAndDeleteTest() {
+        var customer = new Customer();
+        customer.setName("Johnny");
+        customer.setEmail("jons.erdos@gmail.com");
+        customerRepository.save(customer)
+                .doOnNext(item -> log.info("Received: {}", item))
+                .as(StepVerifier::create)
+                .assertNext(c -> Assertions.assertNotNull(c.getId()))
+                .expectComplete()
+                .verify();
 
+        // test count
+        customerRepository.count()
+                .as(StepVerifier::create)
+                .assertNext(i -> Assertions.assertEquals(11, i))
+                .expectComplete()
+                .verify();
 
+        // delete the created object
+        customerRepository.deleteById(11)
+                .then(customerRepository.count())
+                .as(StepVerifier::create)
+                .expectNext(10L)
+                .expectComplete()
+                .verify();
+    }
 }
