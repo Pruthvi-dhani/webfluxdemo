@@ -1,6 +1,7 @@
 package com.webflux.demo.sec02.repository;
 
-import com.webflux.demo.sec01.Product;
+import com.webflux.demo.sec02.entity.Product;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
@@ -8,4 +9,6 @@ import reactor.core.publisher.Flux;
 @Repository
 public interface ProductRepository extends ReactiveCrudRepository<Product, Integer> {
     Flux<Product> findByPriceBetween(int lowerRange, int upperRange);
+
+    Flux<Product> findBy(Pageable pageable);
 }

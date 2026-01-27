@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import reactor.test.StepVerifier;
 
 @Slf4j
@@ -101,6 +102,17 @@ public class CustomerRepositoryTest extends AbstractTest {
         productRepository.findByPriceBetween(200, 500)
                 .as(StepVerifier::create)
                 .expectNextCount(4)
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    public void productPageableTest() {
+        productRepository.findBy(PageRequest.of(0, 3))
+                .doOnNext(item -> log.info("Received: {}", item))
+                .as(StepVerifier::create)
+                .assertNext(p -> Assertions.assertNotNull(p.getId()))
+                .expectNextCount(2)
                 .expectComplete()
                 .verify();
     }
