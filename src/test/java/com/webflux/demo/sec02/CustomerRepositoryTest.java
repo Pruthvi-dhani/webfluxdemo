@@ -2,6 +2,7 @@ package com.webflux.demo.sec02;
 
 import com.webflux.demo.sec02.entity.Customer;
 import com.webflux.demo.sec02.repository.CustomerRepository;
+import com.webflux.demo.sec02.repository.ProductRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,9 @@ import reactor.test.StepVerifier;
 public class CustomerRepositoryTest extends AbstractTest {
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     @Test
     public void findAllTest() {
@@ -76,6 +80,27 @@ public class CustomerRepositoryTest extends AbstractTest {
                 .then(customerRepository.count())
                 .as(StepVerifier::create)
                 .expectNext(10L)
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    public void updateCustomerTest() {
+        customerRepository.findByName("ethan")
+                .doOnNext(c -> c.setName("noel"))
+                .flatMap(c -> customerRepository.save(c))
+                .doOnNext(item -> log.info("Received: {}", item))
+                .as(StepVerifier::create)
+                .assertNext(c -> Assertions.assertEquals("noel", c.getName()))
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    public void productPriceRangeTest() {
+        productRepository.findByPriceBetween(200, 500)
+                .as(StepVerifier::create)
+                .expectNextCount(4)
                 .expectComplete()
                 .verify();
     }
