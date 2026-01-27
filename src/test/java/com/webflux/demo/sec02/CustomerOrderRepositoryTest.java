@@ -2,6 +2,7 @@ package com.webflux.demo.sec02;
 
 import com.webflux.demo.sec02.repository.CustomerOrderRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.test.StepVerifier;
@@ -12,11 +13,22 @@ public class CustomerOrderRepositoryTest extends AbstractTest {
     private CustomerOrderRepository customerOrderRepository;
 
     @Test
-    public void productsOrderedByCustomer() {
+    public void productsOrderedByCustomerTest() {
         customerOrderRepository.getProductsByCustomerName("mike")
                 .doOnNext(item -> log.info("Received: {}", item))
                 .as(StepVerifier::create)
                 .expectNextCount(2)
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    public void orderDetailsByProductTest() {
+        customerOrderRepository.getOrderDetailsByProduct("iphone 20")
+                .doOnNext(dto -> log.info("Received: {}", dto))
+                .as(StepVerifier::create)
+                .assertNext(dto -> Assertions.assertEquals(975, dto.amount()))
+                .assertNext(dto -> Assertions.assertEquals(950, dto.amount()))
                 .expectComplete()
                 .verify();
     }
